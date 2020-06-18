@@ -36,7 +36,7 @@ public class PushPublishFilterResourceTest {
         resource = new PushPublishFilterResource();
         response = new MockHttpResponse();
 
-        PublisherAPIImpl.class.cast(APILocator.getPublisherAPI()).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(APILocator.getPublisherAPI()).clearFilterList();
         filterKey = "filterTestAPI.yml";
 
         createFilter();

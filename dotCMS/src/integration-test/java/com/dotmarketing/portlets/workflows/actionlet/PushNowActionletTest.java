@@ -194,7 +194,7 @@ public class PushNowActionletTest extends BaseWorkflowIntegrationTest {
         createEnvironment(environmentName);
 
         //Clean all filters
-        PublisherAPIImpl.class.cast(APILocator.getPublisherAPI()).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(APILocator.getPublisherAPI()).clearFilterList();
         //Create 3 filters, one set as default
         final String defaulFilterKey = "defaultFilterKey"+System.currentTimeMillis();
         final String filterKey1 = "filterKey1"+System.currentTimeMillis();

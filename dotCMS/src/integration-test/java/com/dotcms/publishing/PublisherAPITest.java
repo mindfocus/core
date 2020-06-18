@@ -335,7 +335,7 @@ public class PublisherAPITest extends IntegrationTestBase {
      */
     @Test
     public void test_addFilter_success() throws DotDataException {
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final Map<String,Object> filtersMap =
                 ImmutableMap.of("dependencies",true,"relationships",true,"excludeClasses","Host,Workflow");
@@ -358,7 +358,7 @@ public class PublisherAPITest extends IntegrationTestBase {
      */
     @Test
     public void test_getFiltersByRole_CMSAdmin_returnAllFilters() throws DotDataException {
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final Map<String,Object> filtersMap =
                 ImmutableMap.of("dependencies",true,"relationships",true,"excludeClasses","Host,Workflow");
@@ -389,7 +389,7 @@ public class PublisherAPITest extends IntegrationTestBase {
      */
     @Test
     public void test_getFiltersByRole_nonCMSAdmin_userId() throws DotDataException {
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final User newUser = new UserDataGen().nextPersisted();
 
@@ -430,7 +430,7 @@ public class PublisherAPITest extends IntegrationTestBase {
      */
     @Test
     public void test_getFiltersByRole_nonCMSAdmin_RoleHierarchy() throws DotDataException {
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final User userA = new UserDataGen().nextPersisted();
         final User userB = new UserDataGen().nextPersisted();
@@ -507,7 +507,7 @@ public class PublisherAPITest extends IntegrationTestBase {
      */
     @Test
     public void test_getFilterDescriptorByKey_emptyKey_returnDefaultFilter(){
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final String keyDefault = "TestByKeyEmptyKeyDefault.yml";
         createFilterDescriptor(keyDefault,"TestByKeyEmptyKeyDefault",true,null);
@@ -526,7 +526,7 @@ public class PublisherAPITest extends IntegrationTestBase {
      */
     @Test
     public void test_getFilterDescriptorByKey_filterKeyDoesNotExist_returnDefaultFilter(){
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final String keyDefault = "TestByKeyDoesNotExistDefault.yml";
         createFilterDescriptor(keyDefault,"TestByKeyDoesNotExistDefault",true,null);
@@ -548,7 +548,7 @@ public class PublisherAPITest extends IntegrationTestBase {
     @Test
     public void test_createPublisherFilter_withAllFilters()
             throws DotDataException, DotSecurityException {
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final String filterKey = "TestCreatePublisherFilterAllFilters.yml";
         final Map<String,Object> filtersMap = new HashMap<>();
@@ -595,7 +595,7 @@ public class PublisherAPITest extends IntegrationTestBase {
     @Test
     public void test_createPublisherFilter_withSomeFilters()
             throws DotDataException, DotSecurityException {
-        PublisherAPIImpl.class.cast(publisherAPI).getFilterDescriptorMap().clear();
+        PublisherAPIImpl.class.cast(publisherAPI).clearFilterList();
 
         final String filterKey = "TestCreatePublisherFilter.yml";
         final List<Object> listExcludeClasses = new ArrayList();

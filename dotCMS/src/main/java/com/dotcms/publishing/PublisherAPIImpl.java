@@ -19,18 +19,23 @@ import com.dotmarketing.util.PushPublishLogger;
 import com.dotmarketing.util.UtilMethods;
 import com.google.common.annotations.VisibleForTesting;
 import com.liferay.portal.model.User;
+import io.vavr.control.Try;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PublisherAPIImpl implements PublisherAPI {
 
     private final PublishAuditAPI publishAuditAPI = PublishAuditAPI.getInstance();
     private final LocalSystemEventsAPI localSystemEventsAPI = APILocator.getLocalSystemEventsAPI();
-    private final Map<String,FilterDescriptor> loadedFilters = new ConcurrentHashMap<>();
+    private final List<FilterDescriptor> loadedFilters = new ArrayList();
 
 
     @Override
@@ -155,25 +160,46 @@ public class PublisherAPIImpl implements PublisherAPI {
         return status;
     }
 
+    final private Comparator<FilterDescriptor> descriptorSorterComparator = new  Comparator<FilterDescriptor>() {
+        @Override
+        public int compare(FilterDescriptor filter1, FilterDescriptor filter2) {
+
+            if(filter1.isDefaultFilter()) return -1;
+            if(filter2.isDefaultFilter()) return 1;
+            if(filter1.getTitle()==null) return -1;
+            if(filter2.getTitle()==null) return 1;
+            else {
+                return filter1.getTitle().compareTo(filter2.getTitle());
+            }
+        }
+
+    };
+    
+    
     @Override
     public void addFilterDescriptor(final FilterDescriptor filterDescriptor) {
-        this.loadedFilters.put(filterDescriptor.getKey(),filterDescriptor);
+        this.loadedFilters.add(filterDescriptor);
+
+
+        Collections.sort(this.loadedFilters, descriptorSorterComparator);
+        
+        
     }
 
     @Override
     public List<FilterDescriptor> getFiltersDescriptorsByRole(final User user) throws DotDataException {
         if(user.isAdmin()){
-            return new ArrayList<>(this.loadedFilters.values());
+            return new ArrayList<>(this.loadedFilters);
         }
         final List<Role> roles = APILocator.getRoleAPI().loadRolesForUser(user.getUserId(), true);
         Logger.info(this,"User Roles: " + roles.toString());
         final List<FilterDescriptor> filters = new ArrayList<>();
-        for(final Map.Entry<String,FilterDescriptor> filterDescriptorMap : this.loadedFilters.entrySet()){
-            final String filterRoles = filterDescriptorMap.getValue().getRoles();
-            Logger.info(PublisherAPI.class,"File: " +filterDescriptorMap.getKey() + " Roles: " + filterRoles );
+        for(final FilterDescriptor filterDescriptor : this.loadedFilters){
+            final String filterRoles = filterDescriptor.getRoles();
+            Logger.info(PublisherAPI.class,"File: " +filterDescriptor.getKey() + " Roles: " + filterRoles );
             for(final Role role : roles){
                 if(UtilMethods.isSet(role.getRoleKey()) && filterRoles.contains(role.getRoleKey())){
-                    filters.add(filterDescriptorMap.getValue());
+                    filters.add(filterDescriptor);
                 }
             }
         }
@@ -182,15 +208,16 @@ public class PublisherAPIImpl implements PublisherAPI {
     }
 
     @VisibleForTesting
-    public Map<String, FilterDescriptor> getFilterDescriptorMap() {
-        return this.loadedFilters;
+    public void clearFilterList() {
+        this.loadedFilters.clear();
     }
     
     @CloseDBIfOpened
     @Override
     public FilterDescriptor getFilterDescriptorByKey(final String filterKey) {
         final FilterDescriptor defaultFilter = getDefaultFilter();
-        return !UtilMethods.isSet(filterKey) ? defaultFilter : this.loadedFilters.getOrDefault(filterKey,defaultFilter);
+        Optional<FilterDescriptor> filterByKey=this.loadedFilters.stream().filter(f->f.getKey().equals(filterKey)).findFirst();
+        return filterByKey.orElse(defaultFilter);
     }
     
     @CloseDBIfOpened
@@ -229,6 +256,12 @@ public class PublisherAPIImpl implements PublisherAPI {
     }
 
     public FilterDescriptor getDefaultFilter(){
-        return this.loadedFilters.values().stream().filter(FilterDescriptor::isDefaultFilter).findFirst().get();
+        return this.loadedFilters.stream().filter(FilterDescriptor::isDefaultFilter).findFirst().get();
     }
+    
+    
+    
+
+    
+    
 }
