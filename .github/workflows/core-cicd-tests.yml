@@ -170,4 +170,3 @@ jobs:
           PROVIDER_DB_USERNAME: sa
           PROVIDER_DB_PASSWORD: mssqldotCMS2019
         if: ${{ always() }} && (env.allDbs == true || startsWith(env.commitMsg, '[github]') || startsWith(env.commitMsg, '[github mssql]'))
-
